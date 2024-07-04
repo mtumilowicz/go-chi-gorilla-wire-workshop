@@ -18,10 +18,10 @@ func NewCustomerService(repo CustomerRepository) CustomerService {
 	return CustomerService{repo: repo}
 }
 
-func (service *CustomerService) CreateCustomer(customer Customer) {
-	(service.repo).CreateCustomer(customer)
+func (service CustomerService) CreateCustomer(customer Customer) {
+	service.repo.CreateCustomer(customer)
 }
 
-func (service *CustomerService) GetCustomer(name string) (Customer, bool) {
-	return (service.repo).GetCustomer(name)
+func (service CustomerService) GetCustomer(name string) (Customer, bool) {
+	return service.repo.GetCustomer(name)
 }
