@@ -1,4 +1,4 @@
-package app
+package gateway
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func Router(service domain.CustomerService, r *chi.Mux) {
+func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 	r.Route("/customers", func(r chi.Router) {
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 			var customer domain.Customer
