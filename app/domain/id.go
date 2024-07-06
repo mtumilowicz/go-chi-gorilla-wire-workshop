@@ -8,8 +8,8 @@ type IdService struct {
 	repository IdRepository
 }
 
-func NewIdService(repository IdRepository) *IdService {
-	return &IdService{
+func NewIdService(repository IdRepository) IdService {
+	return IdService{
 		repository: repository,
 	}
 }

@@ -16,7 +16,7 @@ func main() {
 
 	customerService := app.InitializeApp()
 
-	gateway.CustomerRouter(*customerService, r)
+	gateway.CustomerRouter(customerService, r)
 
 	http.ListenAndServe(":8080", context.ClearHandler(r))
 }

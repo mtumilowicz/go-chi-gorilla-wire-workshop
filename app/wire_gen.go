@@ -13,7 +13,7 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeApp() *domain.CustomerService {
+func InitializeApp() domain.CustomerService {
 	customerRepository := infrastructure.NewCustomerInMemoryRepository()
 	idRepository := infrastructure.NewIdUuidRepository()
 	idService := domain.NewIdService(idRepository)
@@ -21,7 +21,7 @@ func InitializeApp() *domain.CustomerService {
 	return customerService
 }
 
-func InitializeInMemoryApp() *domain.CustomerService {
+func InitializeInMemoryApp() domain.CustomerService {
 	customerRepository := infrastructure.NewCustomerInMemoryRepository()
 	idRepository := infrastructure.NewIdUuidRepository()
 	idService := domain.NewIdService(idRepository)

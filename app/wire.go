@@ -9,22 +9,22 @@ import (
 	"go-chi-gorilla-wire-workshop/app/infrastructure"
 )
 
-func InitializeApp() *domain.CustomerService {
+func InitializeApp() domain.CustomerService {
 	wire.Build(
 		infrastructure.NewCustomerInMemoryRepository,
 		infrastructure.NewIdUuidRepository,
 		domain.NewIdService,
 		domain.NewCustomerService,
 	)
-	return &domain.CustomerService{}
+	return domain.CustomerService{}
 }
 
-func InitializeInMemoryApp() *domain.CustomerService {
+func InitializeInMemoryApp() domain.CustomerService {
 	wire.Build(
 		infrastructure.NewCustomerInMemoryRepository,
 		infrastructure.NewIdUuidRepository,
 		domain.NewIdService,
 		domain.NewCustomerService,
 	)
-	return &domain.CustomerService{}
+	return domain.CustomerService{}
 }

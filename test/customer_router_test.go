@@ -18,7 +18,7 @@ func TestCustomerRouter(t *testing.T) {
 		// given
 		customerService := app.InitializeInMemoryApp()
 		r := chi.NewRouter()
-		gateway.CustomerRouter(*customerService, r)
+		gateway.CustomerRouter(customerService, r)
 
 		// and
 		reqBody := gateway.CreateCustomerApiInput{Name: "John Doe"}
@@ -48,7 +48,7 @@ func TestCustomerRouter(t *testing.T) {
 		// given
 		customerService := app.InitializeInMemoryApp()
 		r := chi.NewRouter()
-		gateway.CustomerRouter(*customerService, r)
+		gateway.CustomerRouter(customerService, r)
 
 		// and
 		reqBody := gateway.CreateCustomerApiInput{Name: "John Doe", Age: 30}
@@ -60,6 +60,13 @@ func TestCustomerRouter(t *testing.T) {
 		var idApiOutput gateway.CustomerIdApiOutput
 		err := json.NewDecoder(rr.Body).Decode(&idApiOutput)
 		customerId := idApiOutput.Id
+
+		// and
+		expectedCustomerApiOutput := gateway.CustomerApiOutput{
+			Id:   customerId,
+			Name: reqBody.Name,
+			Age:  reqBody.Age,
+		}
 
 		// when
 		req, _ = http.NewRequest("GET", "/customers/"+customerId, nil)
@@ -73,18 +80,14 @@ func TestCustomerRouter(t *testing.T) {
 		var apiOutput gateway.CustomerApiOutput
 		err = json.NewDecoder(rr.Body).Decode(&apiOutput)
 		assert.NoError(t, err)
-		assert.Equal(t, gateway.CustomerApiOutput{
-			Name: "John Doe",
-			Id:   customerId,
-			Age:  30,
-		}, apiOutput)
+		assert.Equal(t, expectedCustomerApiOutput, apiOutput)
 	})
 
 	t.Run("Get Non-Existent Customer", func(t *testing.T) {
 		// given
 		customerService := app.InitializeInMemoryApp()
 		r := chi.NewRouter()
-		gateway.CustomerRouter(*customerService, r)
+		gateway.CustomerRouter(customerService, r)
 
 		// and
 		req, _ := http.NewRequest("GET", "/customers/NonExistent", nil)
