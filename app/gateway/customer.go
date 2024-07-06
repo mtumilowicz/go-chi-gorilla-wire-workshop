@@ -8,15 +8,42 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+type CreateCustomerApiInput struct {
+	Name string `json:"name"`
+	Age  int    `json:"age"`
+}
+
+type CustomerApiOutput struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Age  int    `json:"age"`
+}
+
+func newCustomerApiOutput(customer domain.Customer) CustomerApiOutput {
+	return CustomerApiOutput{
+		Id:   customer.Id,
+		Name: customer.Name,
+		Age:  customer.Age,
+	}
+}
+
+func (apiInput *CreateCustomerApiInput) toCommand() domain.CreateCustomerCommand {
+	return domain.CreateCustomerCommand{
+		Name: apiInput.Name,
+		Age:  apiInput.Age,
+	}
+}
+
 func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 	r.Route("/customers", func(r chi.Router) {
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-			var customer domain.Customer
-			if err := json.NewDecoder(r.Body).Decode(&customer); err != nil {
+			var apiInput CreateCustomerApiInput
+			if err := json.NewDecoder(r.Body).Decode(&apiInput); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			service.CreateCustomer(customer)
+			command := apiInput.toCommand()
+			service.CreateCustomer(command)
 			w.WriteHeader(http.StatusCreated)
 		})
 
@@ -27,7 +54,8 @@ func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 				http.Error(w, "customer not found", http.StatusNotFound)
 				return
 			}
-			json.NewEncoder(w).Encode(customer)
+			apiOutput := newCustomerApiOutput(customer)
+			json.NewEncoder(w).Encode(apiOutput)
 		})
 	})
 }

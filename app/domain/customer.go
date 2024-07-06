@@ -1,27 +1,33 @@
 package domain
 
 type Customer struct {
-	Name string `json:"name"`
-	Age  int    `json:"age"`
+	Id   string
+	Name string
+	Age  int
+}
+
+type CreateCustomerCommand struct {
+	Name string
+	Age  int
 }
 
 type CustomerRepository interface {
-	CreateCustomer(customer Customer)
+	CreateCustomer(command CreateCustomerCommand)
 	GetCustomer(name string) (Customer, bool)
 }
 
 type CustomerService struct {
-	repo CustomerRepository
+	repository CustomerRepository
 }
 
-func NewCustomerService(repo CustomerRepository) CustomerService {
-	return CustomerService{repo: repo}
+func NewCustomerService(repository CustomerRepository) CustomerService {
+	return CustomerService{repository: repository}
 }
 
-func (service CustomerService) CreateCustomer(customer Customer) {
-	service.repo.CreateCustomer(customer)
+func (service CustomerService) CreateCustomer(command CreateCustomerCommand) {
+	service.repository.CreateCustomer(command)
 }
 
 func (service CustomerService) GetCustomer(name string) (Customer, bool) {
-	return service.repo.GetCustomer(name)
+	return service.repository.GetCustomer(name)
 }
