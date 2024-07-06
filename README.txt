@@ -287,6 +287,19 @@
         * two instances of an interface type are equal <=> their types are equal and their values are equal
             * type isn’t comparable => panic
                 * example: interface as a map key
+    * accept interfaces, return structs
+        * exception: returning error interface
+        * concrete type is returned => new methods and fields can be added without breaking existing code
+            * new fields and methods can be ignored if call-sites using interfaces
+            * example: database/sql/driver in std lib
+                * defines a set of interfaces that define what a database driver must provide
+                    * responsibility of the database driver author to provide concrete implementations
+                    * almost all methods on all interfaces return interfaces
+                * problem: starting in Go 1.8, database drivers are expected to support additional features
+                    * existing interfaces can’t be updated with new method
+                    * existing methods on these interfaces can’t be updated to return different types
+                    * solution: define new interfaces and tell database driver authors that they should implement both
+        * invoking a function with parameters of interface types => heap allocation occurs for each interface parameter
 * embedding
     * form of composition
         * is not inheritance - cannot assign a variable of one type to another
@@ -318,27 +331,11 @@
                     fmt.Printf("Unknown animal\n")
                 }
             ```
-
-## patterns
 * ok idiom
     * check if operation was successful without causing a panic or error
         ```
         if value, ok := m["foo"]; ok {
         ```
-* accept interfaces, return structs
-    * exception: returning error interface
-    * concrete type is returned => new methods and fields can be added without breaking existing code
-        * new fields and methods can be ignored if call-sites using interfaces
-        * example: database/sql/driver in std lib
-            * defines a set of interfaces that define what a database driver must provide
-                * responsibility of the database driver author to provide concrete implementations
-                * almost all methods on all interfaces return interfaces
-            * problem: starting in Go 1.8, database drivers are expected to support additional features
-                * existing interfaces can’t be updated with new method
-                * existing methods on these interfaces can’t be updated to return different types
-                * solution: define new interfaces and tell database driver authors that they should implement both
-    * invoking a function with parameters of interface types => heap allocation occurs for each interface parameter
-
 
 ## pointers
 * variable that holds the location in memory where a value is stored
@@ -667,8 +664,6 @@
             })
         }
         ```
-
-
 
 ## commands
 * go install
