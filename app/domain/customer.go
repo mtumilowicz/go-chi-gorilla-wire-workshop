@@ -11,12 +11,20 @@ type CreateCustomerCommand struct {
 	Age  int
 }
 
+func (c CreateCustomerCommand) toCustomer(id CustomerId) Customer {
+	return Customer{
+		Id:   id,
+		Name: c.Name,
+		Age:  c.Age,
+	}
+}
+
 type CustomerId struct {
 	Raw string
 }
 
 type CustomerRepository interface {
-	CreateCustomer(command CreateCustomerCommand) CustomerId
+	CreateCustomer(customer Customer) CustomerId
 	GetCustomer(id CustomerId) (Customer, bool)
 }
 
@@ -30,7 +38,10 @@ func NewCustomerService(repository CustomerRepository, idService IdService) Cust
 }
 
 func (service CustomerService) CreateCustomer(command CreateCustomerCommand) CustomerId {
-	return service.repository.CreateCustomer(command)
+	id := service.idService.GenerateId()
+	customerId := CustomerId{Raw: id}
+	customer := command.toCustomer(customerId)
+	return service.repository.CreateCustomer(customer)
 }
 
 func (service CustomerService) GetCustomer(id CustomerId) (Customer, bool) {

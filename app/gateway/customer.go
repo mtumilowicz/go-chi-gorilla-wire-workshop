@@ -38,7 +38,7 @@ func newCustomerApiOutput(customer domain.Customer) CustomerApiOutput {
 	}
 }
 
-func (apiInput *CreateCustomerApiInput) toCommand() domain.CreateCustomerCommand {
+func (apiInput CreateCustomerApiInput) toCommand() domain.CreateCustomerCommand {
 	return domain.CreateCustomerCommand{
 		Name: apiInput.Name,
 		Age:  apiInput.Age,

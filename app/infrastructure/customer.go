@@ -1,7 +1,6 @@
 package infrastructure
 
 import (
-	"github.com/google/uuid"
 	"go-chi-gorilla-wire-workshop/app/domain"
 	"sync"
 )
@@ -14,8 +13,7 @@ func NewCustomerInMemoryRepository() domain.CustomerRepository {
 	return &CustomerInMemoryRepository{}
 }
 
-func (repo *CustomerInMemoryRepository) CreateCustomer(command domain.CreateCustomerCommand) domain.CustomerId {
-	customer := newCustomer(command)
+func (repo *CustomerInMemoryRepository) CreateCustomer(customer domain.Customer) domain.CustomerId {
 	id := customer.Id
 	repo.Data.Store(id, customer)
 	return id
@@ -27,13 +25,4 @@ func (repo *CustomerInMemoryRepository) GetCustomer(id domain.CustomerId) (domai
 		return domain.Customer{}, false
 	}
 	return value.(domain.Customer), true
-}
-
-func newCustomer(command domain.CreateCustomerCommand) domain.Customer {
-	id := uuid.New()
-	return domain.Customer{
-		Id:   domain.CustomerId{Raw: id.String()},
-		Name: command.Name,
-		Age:  command.Age,
-	}
 }
