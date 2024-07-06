@@ -20,3 +20,11 @@ func InitializeApp() *domain.CustomerService {
 	customerService := domain.NewCustomerService(customerRepository, idService)
 	return customerService
 }
+
+func InitializeInMemoryApp() *domain.CustomerService {
+	customerRepository := infrastructure.NewCustomerInMemoryRepository()
+	idRepository := infrastructure.NewIdUuidRepository()
+	idService := domain.NewIdService(idRepository)
+	customerService := domain.NewCustomerService(customerRepository, idService)
+	return customerService
+}

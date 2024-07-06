@@ -18,3 +18,13 @@ func InitializeApp() *domain.CustomerService {
 	)
 	return &domain.CustomerService{}
 }
+
+func InitializeInMemoryApp() *domain.CustomerService {
+	wire.Build(
+		infrastructure.NewCustomerInMemoryRepository,
+		infrastructure.NewIdUuidRepository,
+		domain.NewIdService,
+		domain.NewCustomerService,
+	)
+	return &domain.CustomerService{}
+}
