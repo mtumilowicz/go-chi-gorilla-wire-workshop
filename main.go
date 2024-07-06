@@ -16,7 +16,9 @@ func main() {
 	r.Use(middleware.Recoverer)
 
 	customerRepository := infrastructure.NewCustomerInMemoryRepository()
-	customerService := domain.NewCustomerService(customerRepository)
+	idRepository := infrastructure.NewIdUuidRepository()
+	idService := domain.NewIdService(idRepository)
+	customerService := domain.NewCustomerService(customerRepository, idService)
 
 	gateway.CustomerRouter(customerService, r)
 
