@@ -57,6 +57,8 @@ func TestCustomerRouter(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		rr := httptest.NewRecorder()
 		r.ServeHTTP(rr, req)
+
+		// and
 		var idApiOutput gateway.CustomerIdApiOutput
 		err := json.NewDecoder(rr.Body).Decode(&idApiOutput)
 		customerId := idApiOutput.Id
