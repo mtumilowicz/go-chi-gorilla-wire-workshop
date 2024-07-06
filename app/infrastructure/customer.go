@@ -10,7 +10,7 @@ type CustomerInMemoryRepository struct {
 	Data sync.Map
 }
 
-func NewCustomerInMemoryRepository() *CustomerInMemoryRepository {
+func NewCustomerInMemoryRepository() domain.CustomerRepository {
 	return &CustomerInMemoryRepository{}
 }
 

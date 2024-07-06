@@ -18,11 +18,11 @@ type CustomerRepository interface {
 
 type CustomerService struct {
 	repository CustomerRepository
-	idService  IdService
+	idService  *IdService
 }
 
-func NewCustomerService(repository CustomerRepository, idService IdService) CustomerService {
-	return CustomerService{repository: repository, idService: idService}
+func NewCustomerService(repository CustomerRepository, idService *IdService) *CustomerService {
+	return &CustomerService{repository: repository, idService: idService}
 }
 
 func (service CustomerService) CreateCustomer(command CreateCustomerCommand) {

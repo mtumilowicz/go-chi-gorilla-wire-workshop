@@ -4,9 +4,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/context"
-	"go-chi-gorilla-wire-workshop/app/domain"
+	"go-chi-gorilla-wire-workshop/app"
 	"go-chi-gorilla-wire-workshop/app/gateway"
-	"go-chi-gorilla-wire-workshop/app/infrastructure"
 	"net/http"
 )
 
@@ -15,12 +14,9 @@ func main() {
 	r.Use(authMiddleware)
 	r.Use(middleware.Recoverer)
 
-	customerRepository := infrastructure.NewCustomerInMemoryRepository()
-	idRepository := infrastructure.NewIdUuidRepository()
-	idService := domain.NewIdService(idRepository)
-	customerService := domain.NewCustomerService(customerRepository, idService)
+	customerService := app.InitializeApp()
 
-	gateway.CustomerRouter(customerService, r)
+	gateway.CustomerRouter(*customerService, r)
 
 	http.ListenAndServe(":8080", context.ClearHandler(r))
 }
