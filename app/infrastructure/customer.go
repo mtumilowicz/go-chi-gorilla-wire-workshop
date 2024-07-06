@@ -14,9 +14,10 @@ func NewCustomerInMemoryRepository() domain.CustomerRepository {
 	return &CustomerInMemoryRepository{}
 }
 
-func (repo *CustomerInMemoryRepository) CreateCustomer(command domain.CreateCustomerCommand) {
+func (repo *CustomerInMemoryRepository) CreateCustomer(command domain.CreateCustomerCommand) domain.CustomerId {
 	customer := newCustomer(command)
 	repo.Data.Store(command.Name, customer)
+	return customer.Id
 }
 
 func (repo *CustomerInMemoryRepository) GetCustomer(name string) (domain.Customer, bool) {
@@ -30,7 +31,7 @@ func (repo *CustomerInMemoryRepository) GetCustomer(name string) (domain.Custome
 func newCustomer(command domain.CreateCustomerCommand) domain.Customer {
 	id := uuid.New()
 	return domain.Customer{
-		Id:   id.String(),
+		Id:   domain.CustomerId{Raw: id.String()},
 		Name: command.Name,
 		Age:  command.Age,
 	}

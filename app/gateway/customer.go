@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"encoding/json"
+	"fmt"
 	"go-chi-gorilla-wire-workshop/app/domain"
 	"net/http"
 
@@ -19,9 +20,19 @@ type CustomerApiOutput struct {
 	Age  int    `json:"age"`
 }
 
+type CustomerIdApiOutput struct {
+	Id string `json:"id"`
+}
+
+func newCustomerIdApiOutput(customerId domain.CustomerId) CustomerIdApiOutput {
+	return CustomerIdApiOutput{
+		Id: customerId.Raw,
+	}
+}
+
 func newCustomerApiOutput(customer domain.Customer) CustomerApiOutput {
 	return CustomerApiOutput{
-		Id:   customer.Id,
+		Id:   customer.Id.Raw,
 		Name: customer.Name,
 		Age:  customer.Age,
 	}
@@ -35,7 +46,8 @@ func (apiInput *CreateCustomerApiInput) toCommand() domain.CreateCustomerCommand
 }
 
 func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
-	r.Route("/customers", func(r chi.Router) {
+	baseUrl := "/customers"
+	r.Route(baseUrl, func(r chi.Router) {
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 			var apiInput CreateCustomerApiInput
 			if err := json.NewDecoder(r.Body).Decode(&apiInput); err != nil {
@@ -43,8 +55,12 @@ func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 				return
 			}
 			command := apiInput.toCommand()
-			service.CreateCustomer(command)
+			customerId := service.CreateCustomer(command)
+			location := fmt.Sprintf("%s/%s", baseUrl, customerId)
+			w.Header().Set("Location", location)
 			w.WriteHeader(http.StatusCreated)
+			apiOutput := newCustomerIdApiOutput(customerId)
+			json.NewEncoder(w).Encode(apiOutput)
 		})
 
 		r.Get("/{name}", func(w http.ResponseWriter, r *http.Request) {
