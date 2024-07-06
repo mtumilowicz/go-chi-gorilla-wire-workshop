@@ -16,12 +16,13 @@ func NewCustomerInMemoryRepository() domain.CustomerRepository {
 
 func (repo *CustomerInMemoryRepository) CreateCustomer(command domain.CreateCustomerCommand) domain.CustomerId {
 	customer := newCustomer(command)
-	repo.Data.Store(command.Name, customer)
-	return customer.Id
+	id := customer.Id
+	repo.Data.Store(id, customer)
+	return id
 }
 
-func (repo *CustomerInMemoryRepository) GetCustomer(name string) (domain.Customer, bool) {
-	value, ok := repo.Data.Load(name)
+func (repo *CustomerInMemoryRepository) GetCustomer(id domain.CustomerId) (domain.Customer, bool) {
+	value, ok := repo.Data.Load(id)
 	if !ok {
 		return domain.Customer{}, false
 	}

@@ -63,9 +63,9 @@ func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 			json.NewEncoder(w).Encode(apiOutput)
 		})
 
-		r.Get("/{name}", func(w http.ResponseWriter, r *http.Request) {
-			name := chi.URLParam(r, "name")
-			customer, found := service.GetCustomer(name)
+		r.Get("/{id}", func(w http.ResponseWriter, r *http.Request) {
+			id := chi.URLParam(r, "id")
+			customer, found := service.GetCustomer(domain.CustomerId{Raw: id})
 			if !found {
 				http.Error(w, "customer not found", http.StatusNotFound)
 				return

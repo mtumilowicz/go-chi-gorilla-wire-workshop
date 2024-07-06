@@ -17,7 +17,7 @@ type CustomerId struct {
 
 type CustomerRepository interface {
 	CreateCustomer(command CreateCustomerCommand) CustomerId
-	GetCustomer(name string) (Customer, bool)
+	GetCustomer(id CustomerId) (Customer, bool)
 }
 
 type CustomerService struct {
@@ -33,6 +33,6 @@ func (service CustomerService) CreateCustomer(command CreateCustomerCommand) Cus
 	return service.repository.CreateCustomer(command)
 }
 
-func (service CustomerService) GetCustomer(name string) (Customer, bool) {
-	return service.repository.GetCustomer(name)
+func (service CustomerService) GetCustomer(id CustomerId) (Customer, bool) {
+	return service.repository.GetCustomer(id)
 }

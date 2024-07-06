@@ -34,15 +34,14 @@ func TestCustomerRouter(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, rr.Code)
 
 		// and
-		location := rr.Header().Get("Location")
-		assert.NotEmpty(t, location, "Location header should not be empty")
-
-		// and
 		var apiOutput gateway.CustomerIdApiOutput
 		err := json.NewDecoder(rr.Body).Decode(&apiOutput)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, apiOutput.Id, "Customer ID should not be empty")
 
+		// and
+		location := rr.Header().Get("Location")
+		assert.NotEmpty(t, location, "Location header should not be empty")
 	})
 
 	t.Run("Get Customer", func(t *testing.T) {
@@ -52,25 +51,33 @@ func TestCustomerRouter(t *testing.T) {
 		gateway.CustomerRouter(*customerService, r)
 
 		// and
-		reqBody := gateway.CreateCustomerApiInput{Name: "John Doe"}
+		reqBody := gateway.CreateCustomerApiInput{Name: "John Doe", Age: 30}
 		body, _ := json.Marshal(reqBody)
 		req, _ := http.NewRequest("POST", "/customers", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
 		rr := httptest.NewRecorder()
 		r.ServeHTTP(rr, req)
+		var idApiOutput gateway.CustomerIdApiOutput
+		err := json.NewDecoder(rr.Body).Decode(&idApiOutput)
+		customerId := idApiOutput.Id
 
 		// when
-		req, _ = http.NewRequest("GET", "/customers/John Doe", nil)
+		req, _ = http.NewRequest("GET", "/customers/"+customerId, nil)
 		rr = httptest.NewRecorder()
 		r.ServeHTTP(rr, req)
 
 		// then
 		assert.Equal(t, http.StatusOK, rr.Code)
+
 		// and
 		var apiOutput gateway.CustomerApiOutput
-		err := json.NewDecoder(rr.Body).Decode(&apiOutput)
+		err = json.NewDecoder(rr.Body).Decode(&apiOutput)
 		assert.NoError(t, err)
-		assert.Equal(t, "John Doe", apiOutput.Name)
+		assert.Equal(t, gateway.CustomerApiOutput{
+			Name: "John Doe",
+			Id:   customerId,
+			Age:  30,
+		}, apiOutput)
 	})
 
 	t.Run("Get Non-Existent Customer", func(t *testing.T) {
