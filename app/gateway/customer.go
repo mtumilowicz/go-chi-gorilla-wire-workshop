@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"go-chi-gorilla-wire-workshop/app"
 	"go-chi-gorilla-wire-workshop/app/domain"
+	"go-chi-gorilla-wire-workshop/app/validation"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -13,7 +13,7 @@ import (
 
 type CreateCustomerApiInput struct {
 	Name string `json:"name" validate:"min=1,max=30"`
-	Age  *int   `json:"age" validate:"required,min=1,max=200"`
+	Age  int    `json:"age" validate:"min=1,max=200"`
 }
 
 type CustomerApiOutput struct {
@@ -41,12 +41,12 @@ func newCustomerApiOutput(customer domain.Customer) CustomerApiOutput {
 }
 
 func (apiInput CreateCustomerApiInput) toCommand() (domain.CreateCustomerCommand, error) {
-	if err := app.Validate(apiInput); err != nil {
+	if err := validation.Validate(apiInput); err != nil {
 		return domain.CreateCustomerCommand{}, err
 	}
 	return domain.CreateCustomerCommand{
 		Name: apiInput.Name,
-		Age:  *apiInput.Age,
+		Age:  apiInput.Age,
 	}, nil
 }
 
@@ -62,6 +62,7 @@ func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 			command, err := apiInput.toCommand()
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+				return
 			}
 			customerId, err := service.CreateCustomer(command)
 			if err != nil {
@@ -89,11 +90,14 @@ func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 }
 
 func customerErrorToHttp(err error) (message string, httpCode int) {
+	var customerExistsErr *domain.CustomerAlreadyExistsError
+	var invalidInputErr *validation.InvalidInput
+
 	switch {
-	case errors.As(err, &domain.CustomerAlreadyExistsError{}):
-		var e domain.CustomerAlreadyExistsError
-		errors.As(err, &e)
-		return err.Error(), http.StatusBadRequest
+	case errors.As(err, &customerExistsErr):
+		return customerExistsErr.Error(), http.StatusBadRequest
+	case errors.As(err, &invalidInputErr):
+		return invalidInputErr.Error(), http.StatusUnprocessableEntity
 	default:
 		return err.Error(), http.StatusInternalServerError
 	}

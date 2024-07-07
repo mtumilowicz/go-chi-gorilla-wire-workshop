@@ -21,8 +21,7 @@ func TestCustomerRouter(t *testing.T) {
 		gateway.CustomerRouter(customerService, r)
 
 		// and
-		age := 30
-		reqBody := gateway.CreateCustomerApiInput{Name: "John Doe", Age: &age}
+		reqBody := gateway.CreateCustomerApiInput{Name: "John Doe", Age: 30}
 		body, _ := json.Marshal(reqBody)
 		req, _ := http.NewRequest("POST", "/customers", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
@@ -52,8 +51,7 @@ func TestCustomerRouter(t *testing.T) {
 		gateway.CustomerRouter(customerService, r)
 
 		// and
-		age := 30
-		reqBody := gateway.CreateCustomerApiInput{Name: "John Doe", Age: &age}
+		reqBody := gateway.CreateCustomerApiInput{Name: "John Doe", Age: 30}
 		body, _ := json.Marshal(reqBody)
 		req, _ := http.NewRequest("POST", "/customers", bytes.NewBuffer(body))
 		req.Header.Set("Content-Type", "application/json")
@@ -69,7 +67,7 @@ func TestCustomerRouter(t *testing.T) {
 		expectedCustomerApiOutput := gateway.CustomerApiOutput{
 			Id:   customerId,
 			Name: reqBody.Name,
-			Age:  *reqBody.Age,
+			Age:  reqBody.Age,
 		}
 
 		// when

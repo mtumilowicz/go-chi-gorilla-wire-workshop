@@ -2,6 +2,7 @@ package domain
 
 import (
 	"fmt"
+	"go-chi-gorilla-wire-workshop/app/validation"
 )
 
 type CustomerAlreadyExistsError struct {
@@ -14,25 +15,29 @@ func (e CustomerAlreadyExistsError) Error() string {
 
 type Customer struct {
 	Id   CustomerId
-	Name string
-	Age  int
+	Name string `validate:"min=1,max=30"`
+	Age  int    `validate:"min=1,max=200"`
 }
 
 type CreateCustomerCommand struct {
-	Name string
-	Age  int
+	Name string `validate:"min=1,max=30"`
+	Age  int    `validate:"min=1,max=200"`
 }
 
-func (c CreateCustomerCommand) toCustomer(id CustomerId) Customer {
-	return Customer{
+func (c CreateCustomerCommand) toCustomer(id CustomerId) (Customer, error) {
+	customer := Customer{
 		Id:   id,
 		Name: c.Name,
 		Age:  c.Age,
 	}
+	if err := validation.Validate(customer); err != nil {
+		return Customer{}, err
+	}
+	return customer, nil
 }
 
 type CustomerId struct {
-	Raw string
+	Raw string `validate:"min=1"`
 }
 
 type CustomerRepository interface {
@@ -52,7 +57,10 @@ func NewCustomerService(repository CustomerRepository, idService IdService) Cust
 func (service CustomerService) CreateCustomer(command CreateCustomerCommand) (CustomerId, error) {
 	id := service.idService.GenerateId()
 	customerId := CustomerId{Raw: id}
-	customer := command.toCustomer(customerId)
+	customer, err := command.toCustomer(customerId)
+	if err != nil {
+		return CustomerId{}, err
+	}
 	return service.repository.CreateCustomer(customer)
 }
 

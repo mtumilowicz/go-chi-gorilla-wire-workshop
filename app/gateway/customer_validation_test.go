@@ -1,7 +1,7 @@
 package gateway
 
 import (
-	"go-chi-gorilla-wire-workshop/app"
+	"go-chi-gorilla-wire-workshop/app/validation"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,7 +18,7 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 			name: "Valid input",
 			input: CreateCustomerApiInput{
 				Name: "John Doe",
-				Age:  intPtr(30),
+				Age:  30,
 			},
 			expectError:   false,
 			errorMessages: nil,
@@ -27,7 +27,7 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 			name: "Empty Name",
 			input: CreateCustomerApiInput{
 				Name: "",
-				Age:  intPtr(30),
+				Age:  30,
 			},
 			expectError:   true,
 			errorMessages: []string{"Field validation for 'Name' failed on the 'min' tag"},
@@ -36,7 +36,7 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 			name: "Name too short",
 			input: CreateCustomerApiInput{
 				Name: "",
-				Age:  intPtr(30),
+				Age:  30,
 			},
 			expectError:   true,
 			errorMessages: []string{"Field validation for 'Name' failed on the 'min' tag"},
@@ -45,25 +45,25 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 			name: "Name too long",
 			input: CreateCustomerApiInput{
 				Name: "ThisNameIsWayTooLongAndExceedsThirtyCharactersLimit",
-				Age:  intPtr(30),
+				Age:  30,
 			},
 			expectError:   true,
 			errorMessages: []string{"Field validation for 'Name' failed on the 'max' tag"},
 		},
 		{
-			name: "Empty Age",
+			name: "Zero Age",
 			input: CreateCustomerApiInput{
 				Name: "John Doe",
-				Age:  nil,
+				Age:  0,
 			},
 			expectError:   true,
-			errorMessages: []string{"Field validation for 'Age' failed on the 'required' tag"},
+			errorMessages: []string{"Field validation for 'Age' failed on the 'min' tag"},
 		},
 		{
 			name: "Age too low",
 			input: CreateCustomerApiInput{
 				Name: "John Doe",
-				Age:  intPtr(0),
+				Age:  -1,
 			},
 			expectError:   true,
 			errorMessages: []string{"Field validation for 'Age' failed on the 'min' tag"},
@@ -72,25 +72,16 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 			name: "Age too high",
 			input: CreateCustomerApiInput{
 				Name: "John Doe",
-				Age:  intPtr(201),
+				Age:  201,
 			},
 			expectError:   true,
 			errorMessages: []string{"Field validation for 'Age' failed on the 'max' tag"},
 		},
 		{
-			name: "Both fields empty",
-			input: CreateCustomerApiInput{
-				Name: "",
-				Age:  nil,
-			},
-			expectError:   true,
-			errorMessages: []string{"Field validation for 'Name' failed on the 'min' tag", "Field validation for 'Age' failed on the 'required' tag"},
-		},
-		{
 			name: "Both fields invalid",
 			input: CreateCustomerApiInput{
 				Name: "",
-				Age:  intPtr(0),
+				Age:  0,
 			},
 			expectError:   true,
 			errorMessages: []string{"Field validation for 'Name' failed on the 'min' tag", "Field validation for 'Age' failed on the 'min' tag"},
@@ -99,7 +90,7 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := app.Validate(tc.input)
+			err := validation.Validate(tc.input)
 
 			if tc.expectError {
 				assert.Error(t, err)
@@ -111,8 +102,4 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 			}
 		})
 	}
-}
-
-func intPtr(i int) *int {
-	return &i
 }
