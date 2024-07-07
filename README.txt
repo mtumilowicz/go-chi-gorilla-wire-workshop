@@ -1,5 +1,8 @@
 # go-chi-gorilla-wire-workshop
 
+* references
+    * https://www.oreilly.com/library/view/learning-go/9781492077206/
+
 ## preface
 * goals of this workshop
     * understanding basics of golang
