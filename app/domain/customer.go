@@ -1,5 +1,17 @@
 package domain
 
+import (
+	"fmt"
+)
+
+type CustomerAlreadyExistsError struct {
+	Id CustomerId
+}
+
+func (e CustomerAlreadyExistsError) Error() string {
+	return fmt.Sprintf("customer with ID %s already exists", e.Id)
+}
+
 type Customer struct {
 	Id   CustomerId
 	Name string
@@ -24,7 +36,7 @@ type CustomerId struct {
 }
 
 type CustomerRepository interface {
-	CreateCustomer(customer Customer) CustomerId
+	CreateCustomer(customer Customer) (CustomerId, error)
 	GetCustomer(id CustomerId) (Customer, bool)
 }
 
@@ -37,7 +49,7 @@ func NewCustomerService(repository CustomerRepository, idService IdService) Cust
 	return CustomerService{repository: repository, idService: idService}
 }
 
-func (service CustomerService) CreateCustomer(command CreateCustomerCommand) CustomerId {
+func (service CustomerService) CreateCustomer(command CreateCustomerCommand) (CustomerId, error) {
 	id := service.idService.GenerateId()
 	customerId := CustomerId{Raw: id}
 	customer := command.toCustomer(customerId)

@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go-chi-gorilla-wire-workshop/app/domain"
 	"net/http"
@@ -55,7 +56,11 @@ func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 				return
 			}
 			command := apiInput.toCommand()
-			customerId := service.CreateCustomer(command)
+			customerId, err := service.CreateCustomer(command)
+			if err != nil {
+				message, status := customerErrorToHttp(err)
+				http.Error(w, message, status)
+			}
 			location := fmt.Sprintf("%s/%s", baseUrl, customerId)
 			w.Header().Set("Location", location)
 			w.WriteHeader(http.StatusCreated)
@@ -74,4 +79,15 @@ func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 			json.NewEncoder(w).Encode(apiOutput)
 		})
 	})
+}
+
+func customerErrorToHttp(err error) (message string, httpCode int) {
+	switch {
+	case errors.As(err, &domain.CustomerAlreadyExistsError{}):
+		var e domain.CustomerAlreadyExistsError
+		errors.As(err, &e)
+		return err.Error(), http.StatusBadRequest
+	default:
+		return err.Error(), http.StatusInternalServerError
+	}
 }
