@@ -1,5 +1,14 @@
 # go-chi-gorilla-wire-workshop
 
+## preface
+* goals of this workshop
+    * understanding basics of golang
+    * introduction to go ecosystem
+        * chi
+        * gorilla
+        * wire
+* workshop task: implement endpoint for deleting customer
+
 ## golang
 * 25 keywords
     * example: `break`, `continue`, `if`, `for`, etc
@@ -710,3 +719,5 @@
     * UUIDs based on RFC 4122 and DCE 1.1
 * https://github.com/stretchr/testify
     * common assertions and mocks
+* https://github.com/go-playground/validator
+    * Go Struct and Field validation
