@@ -11,8 +11,8 @@ import (
 )
 
 type CreateCustomerApiInput struct {
-	Name string `json:"name"`
-	Age  int    `json:"age"`
+	Name string `json:"name" validate:"required,min=1,max=30"`
+	Age  *int   `json:"age" validate:"required,min=1,max=200"`
 }
 
 type CustomerApiOutput struct {
@@ -39,11 +39,14 @@ func newCustomerApiOutput(customer domain.Customer) CustomerApiOutput {
 	}
 }
 
-func (apiInput CreateCustomerApiInput) toCommand() domain.CreateCustomerCommand {
+func (apiInput CreateCustomerApiInput) toCommand() (domain.CreateCustomerCommand, error) {
+	if err := ValidateInput(apiInput); err != nil {
+		return domain.CreateCustomerCommand{}, err
+	}
 	return domain.CreateCustomerCommand{
 		Name: apiInput.Name,
-		Age:  apiInput.Age,
-	}
+		Age:  *apiInput.Age,
+	}, nil
 }
 
 func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
@@ -55,7 +58,10 @@ func CustomerRouter(service domain.CustomerService, r *chi.Mux) {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			command := apiInput.toCommand()
+			command, err := apiInput.toCommand()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+			}
 			customerId, err := service.CreateCustomer(command)
 			if err != nil {
 				message, status := customerErrorToHttp(err)
