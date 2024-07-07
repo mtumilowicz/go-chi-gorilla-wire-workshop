@@ -3,6 +3,11 @@
 ## preface
 * goals of this workshop
     * understanding basics of golang
+        * data types
+        * syntax
+        * error handling
+        * code organisation
+        * testing
     * introduction to go ecosystem
         * chi
         * gorilla
