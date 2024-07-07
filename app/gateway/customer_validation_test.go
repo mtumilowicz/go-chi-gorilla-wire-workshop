@@ -8,10 +8,10 @@ import (
 
 func TestValidate_CreateCustomerApiInput(t *testing.T) {
 	tests := []struct {
-		name         string
-		input        CreateCustomerApiInput
-		expectError  bool
-		errorMessage string
+		name          string
+		input         CreateCustomerApiInput
+		expectError   bool
+		errorMessages []string
 	}{
 		{
 			name: "Valid input",
@@ -19,8 +19,8 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 				Name: "John Doe",
 				Age:  intPtr(30),
 			},
-			expectError:  false,
-			errorMessage: "",
+			expectError:   false,
+			errorMessages: nil,
 		},
 		{
 			name: "Empty Name",
@@ -28,17 +28,17 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 				Name: "",
 				Age:  intPtr(30),
 			},
-			expectError:  true,
-			errorMessage: "Field validation for 'Name' failed on the 'required' tag",
+			expectError:   true,
+			errorMessages: []string{"Field validation for 'Name' failed on the 'min' tag"},
 		},
 		{
 			name: "Name too short",
 			input: CreateCustomerApiInput{
-				Name: "J",
+				Name: "",
 				Age:  intPtr(30),
 			},
-			expectError:  false,
-			errorMessage: "",
+			expectError:   true,
+			errorMessages: []string{"Field validation for 'Name' failed on the 'min' tag"},
 		},
 		{
 			name: "Name too long",
@@ -46,8 +46,8 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 				Name: "ThisNameIsWayTooLongAndExceedsThirtyCharactersLimit",
 				Age:  intPtr(30),
 			},
-			expectError:  true,
-			errorMessage: "Field validation for 'Name' failed on the 'max' tag",
+			expectError:   true,
+			errorMessages: []string{"Field validation for 'Name' failed on the 'max' tag"},
 		},
 		{
 			name: "Empty Age",
@@ -55,8 +55,8 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 				Name: "John Doe",
 				Age:  nil,
 			},
-			expectError:  true,
-			errorMessage: "Field validation for 'Age' failed on the 'required' tag",
+			expectError:   true,
+			errorMessages: []string{"Field validation for 'Age' failed on the 'required' tag"},
 		},
 		{
 			name: "Age too low",
@@ -64,8 +64,8 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 				Name: "John Doe",
 				Age:  intPtr(0),
 			},
-			expectError:  true,
-			errorMessage: "Field validation for 'Age' failed on the 'min' tag",
+			expectError:   true,
+			errorMessages: []string{"Field validation for 'Age' failed on the 'min' tag"},
 		},
 		{
 			name: "Age too high",
@@ -73,8 +73,26 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 				Name: "John Doe",
 				Age:  intPtr(201),
 			},
-			expectError:  true,
-			errorMessage: "Field validation for 'Age' failed on the 'max' tag",
+			expectError:   true,
+			errorMessages: []string{"Field validation for 'Age' failed on the 'max' tag"},
+		},
+		{
+			name: "Both fields empty",
+			input: CreateCustomerApiInput{
+				Name: "",
+				Age:  nil,
+			},
+			expectError:   true,
+			errorMessages: []string{"Field validation for 'Name' failed on the 'min' tag", "Field validation for 'Age' failed on the 'required' tag"},
+		},
+		{
+			name: "Both fields invalid",
+			input: CreateCustomerApiInput{
+				Name: "",
+				Age:  intPtr(0),
+			},
+			expectError:   true,
+			errorMessages: []string{"Field validation for 'Name' failed on the 'min' tag", "Field validation for 'Age' failed on the 'min' tag"},
 		},
 	}
 
@@ -84,7 +102,9 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 
 			if tc.expectError {
 				assert.Error(t, err)
-				assert.Contains(t, err.Error(), tc.errorMessage)
+				for _, msg := range tc.errorMessages {
+					assert.Contains(t, err.Error(), msg)
+				}
 			} else {
 				assert.NoError(t, err)
 			}

@@ -11,7 +11,7 @@ import (
 )
 
 type CreateCustomerApiInput struct {
-	Name string `json:"name" validate:"required,min=1,max=30"`
+	Name string `json:"name" validate:"min=1,max=30"`
 	Age  *int   `json:"age" validate:"required,min=1,max=200"`
 }
 
