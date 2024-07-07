@@ -1,4 +1,4 @@
-package gateway
+package app
 
 import (
 	"github.com/go-playground/validator/v10"
@@ -6,7 +6,7 @@ import (
 
 var validate = validator.New()
 
-func ValidateInput[T any](input T) error {
+func Validate[T any](input T) error {
 	if err := validate.Struct(input); err != nil {
 		return err
 	}

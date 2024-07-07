@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"go-chi-gorilla-wire-workshop/app"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -98,7 +99,7 @@ func TestValidate_CreateCustomerApiInput(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := ValidateInput(tc.input)
+			err := app.Validate(tc.input)
 
 			if tc.expectError {
 				assert.Error(t, err)

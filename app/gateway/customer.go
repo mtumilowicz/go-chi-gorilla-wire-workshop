@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go-chi-gorilla-wire-workshop/app"
 	"go-chi-gorilla-wire-workshop/app/domain"
 	"net/http"
 
@@ -40,7 +41,7 @@ func newCustomerApiOutput(customer domain.Customer) CustomerApiOutput {
 }
 
 func (apiInput CreateCustomerApiInput) toCommand() (domain.CreateCustomerCommand, error) {
-	if err := ValidateInput(apiInput); err != nil {
+	if err := app.Validate(apiInput); err != nil {
 		return domain.CreateCustomerCommand{}, err
 	}
 	return domain.CreateCustomerCommand{
